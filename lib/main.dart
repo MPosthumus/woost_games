@@ -1,65 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:woost_games/game.dart';
+import 'package:woost_games/next_block.dart';
+import 'package:woost_games/score_bar.dart';
 
-void main() {
-  runApp(WoostGames());
-}
+void main() => runApp(WoostGames());
 
 class WoostGames extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Woost Games',
-      theme: ThemeData(
-        primarySwatch: Colors.yellow,
-      ),
-      home: GameSelection(title: 'Woost Games'),
-    );
+    return MaterialApp(home: Tetris());
   }
 }
 
-class GameSelection extends StatefulWidget {
-  GameSelection({Key key, this.title}) : super(key: key);
-
-  final String title;
-
+class Tetris extends StatefulWidget {
   @override
-  _GameSelectionState createState() => _GameSelectionState();
+  State<StatefulWidget> createState() => _TetrisState();
 }
 
-class _GameSelectionState extends State<GameSelection> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _TetrisState extends State<Tetris> {
+  GlobalKey<GameState> _keyGame = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        title: Text(
+          'Woost Tetris',
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Neue Montreal',
+            fontSize: 25,
+            fontWeight: FontWeight.w700
+          )
         ),
+        centerTitle: true,
+        backgroundColor: Colors.yellow,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      backgroundColor: Colors.yellow,
+      body: SafeArea(
+        child: Column(children: <Widget>[
+          ScoreBar(),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(5, 0, 2.5, 5),
+                    child: Game(key: _keyGame),
+                  )
+                ),Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(2.5, 0, 5, 5),
+                    child: Column(
+                      children: <Widget>[
+                        NextBlock(),
+                        SizedBox(height: 30),
+                        ElevatedButton(
+                          child: Text(
+                            (_keyGame.currentState != null && _keyGame.currentState.isPlaying)
+                              ? 'End' : 'Start',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.yellow
+                            )
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(Colors.black)
+                          ),
+                          onPressed: () {
+                            (_keyGame.currentState != null && _keyGame.currentState.isPlaying)
+                              ? _keyGame.currentState.endGame()
+                              : _keyGame.currentState.startGame();
+                          },
+                        )
+                      ]
+                    )
+                  )
+                ),
+              ],
+            ),
+          )
+        ])
+      )
     );
   }
 }
